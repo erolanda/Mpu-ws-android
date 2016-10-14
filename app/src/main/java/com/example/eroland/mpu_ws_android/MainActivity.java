@@ -28,7 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import com.example.eroland.mpu_ws_android.databinding.ActivityMainBinding;
 
-public class MainActivity extends AppCompatActivity implements Settings.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements Settings.OnFragmentInteractionListener, Plot.OnFragmentInteractionListener{
     private DrawerLayout mDrawer;
     private Toolbar myToolbar;
     private NavigationView nvDrawer;
@@ -83,8 +83,8 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
         Class fragmentClass = null;
         switch (menuItem.getItemId()){
             case R.id.plot_fragment:
+                fragmentClass = Plot.class;
                 Log.d("plot","plot");
-                fragmentClass = MainActivity.class;
                 break;
             case R.id.settings_fragment:
                 Log.d("settings","settings");
