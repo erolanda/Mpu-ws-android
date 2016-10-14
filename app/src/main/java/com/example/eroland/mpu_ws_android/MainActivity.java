@@ -1,9 +1,9 @@
 package com.example.eroland.mpu_ws_android;
 
-import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,24 +11,19 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.RelativeLayout;
-import android.databinding.DataBindingUtil;
 
-import com.github.mikephil.charting.charts.LineChart;
+import com.example.eroland.mpu_ws_android.databinding.ActivityMainBinding;
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.WebSocket;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.example.eroland.mpu_ws_android.databinding.ActivityMainBinding;
 
-public class MainActivity extends AppCompatActivity implements Settings.OnFragmentInteractionListener, Plot.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements Settings.OnFragmentInteractionListener, Plot.OnFragmentInteractionListener {
     private DrawerLayout mDrawer;
     private Toolbar myToolbar;
     private NavigationView nvDrawer;
@@ -37,12 +32,14 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         // Set a Toolbar to replace the ActionBar.
         myToolbar = binding.toolbar;
         setSupportActionBar(myToolbar);
         mDrawer = binding.drawerLayout;
+
         drawerToggle = new ActionBarDrawerToggle(
                 this,
                 mDrawer,
@@ -50,11 +47,13 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
                 R.string.drawer_open,
                 R.string.drawer_close
         );
+
         mDrawer.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
         nvDrawer = binding.nvView;
         setupDrawerContent(nvDrawer);
+
         //connectServer();
 
 //        LineChart chart = new LineChart(getBaseContext());
@@ -65,41 +64,38 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
 //        rl.addView(chart);
     }
 
-    private void setupDrawerContent(NavigationView navigationView){
+    private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener(){
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        selectDrawerItem(item);
-                        return true;
-                    }
+                item -> {
+                    selectDrawerItem(item);
+                    return true;
                 }
         );
     }
 
-    public void selectDrawerItem(MenuItem menuItem){
+    public void selectDrawerItem(MenuItem menuItem) {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Fragment fragment = null;
         Class fragmentClass = null;
-        switch (menuItem.getItemId()){
+        switch (menuItem.getItemId()) {
             case R.id.plot_fragment:
                 fragmentClass = Plot.class;
-                Log.d("plot","plot");
+                Log.d("plot", "plot");
                 break;
             case R.id.settings_fragment:
-                Log.d("settings","settings");
+                Log.d("settings", "settings");
                 fragmentClass = Settings.class;
                 break;
             default:
-                Log.d("plotdefault","plotdefault");
+                Log.d("plotdefault", "plotdefault");
         }
-        try{
+        try {
             fragment = (Fragment) fragmentClass.newInstance();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.flContent,fragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
         menuItem.setChecked(true);
         setTitle(menuItem.getTitle());
         mDrawer.closeDrawers();
@@ -107,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case android.R.id.home:
                 mDrawer.openDrawer(GravityCompat.START);
                 return true;
@@ -120,11 +116,11 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
         super.onPostCreate(savedInstanceState, persistentState);
     }
 
-    public void connectServer(){
+    public void connectServer() {
         AsyncHttpClient.getDefaultInstance().websocket("http://148.226.154.198:3000", "client", new AsyncHttpClient.WebSocketConnectCallback() {
             @Override
             public void onCompleted(Exception ex, WebSocket webSocket) {
-                if(ex != null){
+                if (ex != null) {
                     System.out.println("error");
                     ex.printStackTrace();
                     return;
@@ -133,13 +129,13 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
                 webSocket.setStringCallback(new WebSocket.StringCallback() {
                     @Override
                     public void onStringAvailable(String s) {
-                        try{
+                        try {
                             JSONObject jObject = new JSONObject(s);
                             JSONArray jLectures = jObject.getJSONArray("lectures");
-                            for (int i = 0; i < jLectures.length(); i++){
+                            for (int i = 0; i < jLectures.length(); i++) {
                                 System.out.println(jLectures.get(i));
                             }
-                        }catch (JSONException e){
+                        } catch (JSONException e) {
                             //TODO
                         }
                     }
@@ -150,6 +146,6 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-        Log.d("uri",uri.toString());
+        Log.d("uri", uri.toString());
     }
 }
