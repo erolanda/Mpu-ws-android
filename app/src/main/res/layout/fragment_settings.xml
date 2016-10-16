@@ -1,6 +1,14 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="server"
+            type="com.example.eroland.mpu_ws_android.ServerSettings"
+        />
+    </data>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -17,7 +25,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="@string/lblIP"
-                android:inputType="number" />
+                android:text="@{server.ip}"
+                android:inputType="phone" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -29,6 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="@string/lblPort"
+                android:text="@{String.valueOf(server.port)}"
                 android:inputType="number" />
         </android.support.design.widget.TextInputLayout>
 
@@ -41,6 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="@string/lblSensors"
+                android:text="@{String.valueOf(server.sensors)}"
                 android:inputType="number"
                 />
         </android.support.design.widget.TextInputLayout>

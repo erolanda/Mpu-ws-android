@@ -1,6 +1,7 @@
 package com.example.eroland.mpu_ws_android;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
@@ -71,12 +72,26 @@ public class Settings extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         //return inflater.inflate(R.layout.fragment_settings, container, false);
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String ws_ip = sharedPref.getString(getString(R.string.wsIP), "0.0.0.0");
+        int ws_port = sharedPref.getInt(getString(R.string.wsPort), 3000);
+        int nSensors = sharedPref.getInt(getString(R.string.nSensors), 1);
+        ServerSettings serverSettings = new ServerSettings(ws_ip, ws_port, nSensors);
         FragmentSettingsBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_settings, container, false);
+        binding.setServer(serverSettings);
         View view = binding.getRoot();
         Button btn = binding.btnConnect;
         btn.setOnClickListener(
                 v ->{
                     Log.d(TAG, "onCreateView: ");
+                    String ip = binding.inputIP.getText().toString();
+                    int port = Integer.parseInt(binding.inputPort.getText().toString());
+                    int sensors = Integer.parseInt(binding.inputSensors.getText().toString());
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString(getString(R.string.wsIP), ip);
+                    editor.putInt(getString(R.string.wsPort), port);
+                    editor.putInt(getString(R.string.nSensors), sensors);
+                    editor.commit();
                 });
         return view;
     }

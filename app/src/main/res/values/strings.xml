@@ -6,6 +6,9 @@
     <string name="lblPort">Port of Websocket Server</string>
     <string name="lblSensors">Number of sensors</string>
     <string name="btn_connect">Connect to server</string>
+    <string name="wsIP">ws_server_ip</string>
+    <string name="wsPort">ws_server_port</string>
+    <string name="nSensors">n_sensors</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

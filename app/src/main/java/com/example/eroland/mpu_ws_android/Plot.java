@@ -1,12 +1,20 @@
 package com.example.eroland.mpu_ws_android;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+
+import com.example.eroland.mpu_ws_android.databinding.FragmentPlotBinding;
+
+import static android.content.ContentValues.TAG;
 
 
 /**
@@ -58,13 +66,23 @@ public class Plot extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String ws_ip = sharedPref.getString(getString(R.string.wsIP), "0.0.0.0");
+        int ws_port = sharedPref.getInt(getString(R.string.wsPort), 3000);
+        int nSensors = sharedPref.getInt(getString(R.string.nSensors), 1);
+        System.out.println(ws_ip);
+        System.out.println(ws_port);
+        System.out.println(nSensors);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_plot, container, false);
+        //return inflater.inflate(R.layout.fragment_plot, container, false);
+        FragmentPlotBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_plot, container, false);
+        View view = binding.getRoot();
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
