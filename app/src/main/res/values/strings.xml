@@ -2,7 +2,12 @@
     <string name="app_name">Mpu-ws-android</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="lblIP">IP of WebSocket Server</string>
+    <string name="lblPort">Port of Websocket Server</string>
+    <string name="lblSensors">Number of sensors</string>
+    <string name="btn_connect">Connect to server</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
+
