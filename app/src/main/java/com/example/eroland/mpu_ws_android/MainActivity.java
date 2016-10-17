@@ -26,9 +26,6 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements Settings.OnFragmentInteractionListener, Plot.OnFragmentInteractionListener {
     private DrawerLayout mDrawer;
-    private Toolbar myToolbar;
-    private NavigationView nvDrawer;
-    private ActionBarDrawerToggle drawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,14 +34,15 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         // Set a Toolbar to replace the ActionBar.
-        myToolbar = binding.toolbar;
-        setSupportActionBar(myToolbar);
+        Toolbar toolbar = binding.toolbar;
+        setSupportActionBar(toolbar);
+
         mDrawer = binding.drawerLayout;
 
-        drawerToggle = new ActionBarDrawerToggle(
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
                 this,
                 mDrawer,
-                myToolbar,
+                toolbar,
                 R.string.drawer_open,
                 R.string.drawer_close
         );
@@ -52,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
         mDrawer.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
-        nvDrawer = binding.nvView;
+        NavigationView nvDrawer = binding.nvView;
         setupDrawerContent(nvDrawer);
 
         FragmentManager fm = getSupportFragmentManager();
@@ -131,18 +129,15 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
                     return;
                 }
                 System.out.println("conectado");
-                webSocket.setStringCallback(new WebSocket.StringCallback() {
-                    @Override
-                    public void onStringAvailable(String s) {
-                        try {
-                            JSONObject jObject = new JSONObject(s);
-                            JSONArray jLectures = jObject.getJSONArray("lectures");
-                            for (int i = 0; i < jLectures.length(); i++) {
-                                System.out.println(jLectures.get(i));
-                            }
-                        } catch (JSONException e) {
-                            //TODO
+                webSocket.setStringCallback(s -> {
+                    try {
+                        JSONObject jObject = new JSONObject(s);
+                        JSONArray jLectures = jObject.getJSONArray("lectures");
+                        for (int i = 0; i < jLectures.length(); i++) {
+                            System.out.println(jLectures.get(i));
                         }
+                    } catch (JSONException e) {
+                        //TODO
                     }
                 });
             }
