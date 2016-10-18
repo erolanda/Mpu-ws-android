@@ -1,16 +1,16 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         tools:context="com.example.eroland.mpu_ws_android.Plot">
 
-        <!-- TODO: Update blank fragment layout -->
-        <TextView
+        <ListView
+            android:id="@+id/listView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/hello_blank_fragment" />
-
-    </FrameLayout>
+            android:layout_height="match_parent" >
+        </ListView>
+    </LinearLayout>
 </layout>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/toolbar_connect"
+        app:showAsAction="ifRoom"
+        android:title="Connect to server">
+    </item>
+    <item
+        android:id="@+id/toolbar_calibrate"
+        app:showAsAction="ifRoom|withText"
+        android:title="Calibrate sensors">
+    </item>
+    <item
+        android:id="@+id/toolbar_start_preview"
+        app:showAsAction="ifRoom|withText"
+        android:title="Start preview data">
+    </item>
+    <item
+        android:id="@+id/toolbar_stop_preview"
+        app:showAsAction="ifRoom|withText"
+        android:title="Stop preview data">
+    </item>
+    <item
+        android:id="@+id/toolbar_start_saving"
+        app:showAsAction="ifRoom|withText"
+        android:title="Start saving data">
+    </item>
+    <item
+        android:id="@+id/toolbar_stop_saving"
+        app:showAsAction="ifRoom|withText"
+        android:title="Stop saving data">
+    </item>
+</menu>

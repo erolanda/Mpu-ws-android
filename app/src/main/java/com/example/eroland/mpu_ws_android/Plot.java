@@ -3,16 +3,29 @@ package com.example.eroland.mpu_ws_android;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import com.example.eroland.mpu_ws_android.databinding.FragmentPlotBinding;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.LineData;
+import com.koushikdutta.async.http.AsyncHttpClient;
+import com.koushikdutta.async.http.WebSocket;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.content.ContentValues.TAG;
 
@@ -34,6 +47,10 @@ public class Plot extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private  String ws_ip;
+    private int ws_port;
+    private int nSensors;
 
     private OnFragmentInteractionListener mListener;
 
@@ -66,13 +83,7 @@ public class Plot extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        String ws_ip = sharedPref.getString(getString(R.string.wsIP), "0.0.0.0");
-        int ws_port = sharedPref.getInt(getString(R.string.wsPort), 3000);
-        int nSensors = sharedPref.getInt(getString(R.string.nSensors), 1);
-        System.out.println(ws_ip);
-        System.out.println(ws_port);
-        System.out.println(nSensors);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -82,7 +93,32 @@ public class Plot extends Fragment {
         //return inflater.inflate(R.layout.fragment_plot, container, false);
         FragmentPlotBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_plot, container, false);
         View view = binding.getRoot();
+        ListView lv = binding.listView;
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        ws_ip = sharedPref.getString(getString(R.string.wsIP), "0.0.0.0");
+        ws_port = sharedPref.getInt(getString(R.string.wsPort), 3000);
+        nSensors = sharedPref.getInt(getString(R.string.nSensors), 1);
+        ArrayList<LineData> list = new ArrayList<LineData>();
+        for(int i = 0; i < nSensors; i++){
+            list.add(new LineData());
+        }
+        CharDataAdapter charDataAdapter = new CharDataAdapter(getContext(), list);
+        lv.setAdapter(charDataAdapter);
+
         return view;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()){
+            case R.id.toolbar_connect:
+                connectServer();
+                return true;
+            //TODO Poner los demas items
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -122,5 +158,81 @@ public class Plot extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public void connectServer() {
+        String uri = "http://"+ws_ip+":"+ws_port;
+        AsyncHttpClient.getDefaultInstance().websocket(uri, "client", new AsyncHttpClient.WebSocketConnectCallback() {
+            @Override
+            public void onCompleted(Exception ex, WebSocket webSocket) {
+                if (ex != null) {
+                    System.out.println("error");
+                    ex.printStackTrace();
+                    return;
+                }
+                webSocket.setStringCallback(s -> {
+                    try {
+                        JSONObject jObject = new JSONObject(s);
+                        JSONArray jLectures = jObject.getJSONArray("lectures");
+                        for (int i = 0; i < jLectures.length(); i++) {
+                            System.out.println(jLectures.get(i));
+                            //TODO Graficar las lectuas en los plots
+                        }
+                    } catch (JSONException e) {
+                        //TODO
+                    }
+                });
+            }
+        });
+    }
+
+    private class CharDataAdapter extends ArrayAdapter<LineData>{
+        public CharDataAdapter(Context context, List<LineData> objects){
+            super(context, 0, objects);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LineData data = getItem(position);
+            ViewHolder viewHolder = null;
+            if(convertView == null){
+                viewHolder = new ViewHolder();
+
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_linechart, null);
+                viewHolder.chart = (LineChart) convertView.findViewById(R.id.chart);
+                convertView.setTag(viewHolder);
+            }else{
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+            // apply styling
+            data.setValueTextColor(Color.BLACK);
+            viewHolder.chart.setDrawGridBackground(false);
+
+            XAxis xAxis = viewHolder.chart.getXAxis();
+            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+            xAxis.setDrawGridLines(false);
+
+            YAxis leftAxis = viewHolder.chart.getAxisLeft();
+            leftAxis.setLabelCount(5, false);
+            leftAxis.setSpaceTop(15f);
+
+            YAxis rightAxis = viewHolder.chart.getAxisRight();
+            rightAxis.setLabelCount(5, false);
+            rightAxis.setSpaceTop(15f);
+
+            // set data
+            //viewHolder.chart.setData(data);
+
+            // do not forget to refresh the chart
+//            holder.chart.invalidate();
+            viewHolder.chart.animateY(700);
+
+            return convertView;
+        }
+
+        private class ViewHolder {
+
+            LineChart chart;
+        }
     }
 }

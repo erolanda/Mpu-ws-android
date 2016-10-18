@@ -5,6 +5,7 @@
     <string name="lblIP">IP of WebSocket Server</string>
     <string name="lblPort">Port of Websocket Server</string>
     <string name="lblSensors">Number of sensors</string>
+    <string name="btn_save_settings">Save settings</string>
     <string name="btn_connect">Connect to server</string>
     <string name="wsIP">ws_server_ip</string>
     <string name="wsPort">ws_server_port</string>

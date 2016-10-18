@@ -14,15 +14,10 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
-
 import com.example.eroland.mpu_ws_android.databinding.ActivityMainBinding;
-import com.koushikdutta.async.http.AsyncHttpClient;
-import com.koushikdutta.async.http.WebSocket;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements Settings.OnFragmentInteractionListener, Plot.OnFragmentInteractionListener {
     private DrawerLayout mDrawer;
@@ -57,14 +52,13 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.flContent, new Plot());
         ft.commit();
-        //connectServer();
+    }
 
-//        LineChart chart = new LineChart(getBaseContext());
-//        chart.setDescription("");
-//        chart.setNoDataTextDescription("You need to provide data for the chart.");
-//        chart.setTouchEnabled(true);
-//        RelativeLayout rl = (RelativeLayout) findViewById(R.id.activity_main);
-//        rl.addView(chart);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        return true;
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
@@ -83,14 +77,12 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
         switch (menuItem.getItemId()) {
             case R.id.plot_fragment:
                 fragmentClass = Plot.class;
-                Log.d("plot", "plot");
                 break;
             case R.id.settings_fragment:
-                Log.d("settings", "settings");
                 fragmentClass = Settings.class;
                 break;
             default:
-                Log.d("plotdefault", "plotdefault");
+                //TODO
         }
         try {
             fragment = (Fragment) fragmentClass.newInstance();
@@ -117,31 +109,6 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
     @Override
     public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
         super.onPostCreate(savedInstanceState, persistentState);
-    }
-
-    public void connectServer() {
-        AsyncHttpClient.getDefaultInstance().websocket("http://148.226.154.198:3000", "client", new AsyncHttpClient.WebSocketConnectCallback() {
-            @Override
-            public void onCompleted(Exception ex, WebSocket webSocket) {
-                if (ex != null) {
-                    System.out.println("error");
-                    ex.printStackTrace();
-                    return;
-                }
-                System.out.println("conectado");
-                webSocket.setStringCallback(s -> {
-                    try {
-                        JSONObject jObject = new JSONObject(s);
-                        JSONArray jLectures = jObject.getJSONArray("lectures");
-                        for (int i = 0; i < jLectures.length(); i++) {
-                            System.out.println(jLectures.get(i));
-                        }
-                    } catch (JSONException e) {
-                        //TODO
-                    }
-                });
-            }
-        });
     }
 
     @Override

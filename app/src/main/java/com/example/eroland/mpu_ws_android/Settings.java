@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -65,6 +66,13 @@ public class Settings extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.clear();
+        super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -80,10 +88,9 @@ public class Settings extends Fragment {
         FragmentSettingsBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_settings, container, false);
         binding.setServer(serverSettings);
         View view = binding.getRoot();
-        Button btn = binding.btnConnect;
+        Button btn = binding.btnSave;
         btn.setOnClickListener(
                 v ->{
-                    Log.d(TAG, "onCreateView: ");
                     String ip = binding.inputIP.getText().toString();
                     int port = Integer.parseInt(binding.inputPort.getText().toString());
                     int sensors = Integer.parseInt(binding.inputSensors.getText().toString());
