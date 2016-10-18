@@ -19,7 +19,7 @@ import android.view.MenuItem;
 import com.example.eroland.mpu_ws_android.databinding.ActivityMainBinding;
 
 
-public class MainActivity extends AppCompatActivity implements Settings.OnFragmentInteractionListener, Plot.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements Settings.OnFragmentInteractionListener, PlotFragment.OnFragmentInteractionListener {
     private DrawerLayout mDrawer;
 
     @Override
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
 
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.flContent, new Plot());
+        ft.replace(R.id.flContent, new PlotFragment());
         ft.commit();
     }
 
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements Settings.OnFragme
         Class fragmentClass = null;
         switch (menuItem.getItemId()) {
             case R.id.plot_fragment:
-                fragmentClass = Plot.class;
+                fragmentClass = PlotFragment.class;
                 break;
             case R.id.settings_fragment:
                 fragmentClass = Settings.class;
