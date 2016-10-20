@@ -8,12 +8,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.eroland.mpu_ws_android.databinding.FragmentPlotBinding;
 import com.example.eroland.mpu_ws_android.ui.DelegateBarChart;
@@ -28,19 +26,12 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
-import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.WebSocket;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-
-import static android.content.ContentValues.TAG;
 
 
 public class PlotFragment extends Fragment {
@@ -51,6 +42,8 @@ public class PlotFragment extends Fragment {
     private ArrayList<ChartData> list;
 
     private OnFragmentInteractionListener mListener;
+
+    private ListDelegateAdapter adapter;
 
     public PlotFragment() {
         // Required empty public constructor
@@ -87,7 +80,7 @@ public class PlotFragment extends Fragment {
 
         //list.add(generateData(5));
 
-        ListDelegateAdapter adapter = new ListDelegateAdapter(list);
+        adapter = new ListDelegateAdapter(list);
 
         adapter.registerDelegate(new DelegateLineChart());
         adapter.registerDelegate(new DelegateBarChart());
@@ -153,13 +146,16 @@ public class PlotFragment extends Fragment {
             ws = webSocket;
             //Toast.makeText(getActivity().getApplicationContext(), "Connected to server", Toast.LENGTH_SHORT).show();
             webSocket.setStringCallback(s -> {
-                try{
+                try {
                     int n = Integer.parseInt(s);
                     System.out.println(n);
-                    ChartData d = list.get(0);
-                    d.addEntry(new Entry(d.getEntryCount(),n),0);
-                    d.notifyDataChanged();
-                }catch (NumberFormatException nfe){
+                    ChartData data = list.get(0);
+                    data.addEntry(new Entry(data.getEntryCount(), n), 0);
+                    data.notifyDataChanged();
+                    list.set(0, data);
+
+                    PlotFragment.this.getActivity().runOnUiThread(() -> adapter.notifyItemChanged(0));
+                } catch (NumberFormatException nfe) {
                     System.out.println("Could not parse " + nfe);
                 }
             });
