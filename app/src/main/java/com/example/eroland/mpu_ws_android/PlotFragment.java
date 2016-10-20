@@ -1,16 +1,19 @@
 package com.example.eroland.mpu_ws_android;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.eroland.mpu_ws_android.databinding.FragmentPlotBinding;
 import com.example.eroland.mpu_ws_android.ui.DelegateBarChart;
@@ -25,9 +28,11 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.koushikdutta.async.http.AsyncHttpClient;
+import com.koushikdutta.async.http.WebSocket;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,10 +40,15 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import static android.content.ContentValues.TAG;
+
 
 public class PlotFragment extends Fragment {
     private String ws_ip;
     private int ws_port;
+    private int n_sensors;
+    private WebSocket ws;
+    private ArrayList<ChartData> list;
 
     private OnFragmentInteractionListener mListener;
 
@@ -54,6 +64,10 @@ public class PlotFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        ws_ip = sharedPref.getString(getString(R.string.wsIP), "0.0.0.0");
+        ws_port = sharedPref.getInt(getString(R.string.wsPort), 3000);
+        n_sensors = sharedPref.getInt(getString(R.string.nSensors), 1);
     }
 
     @Override
@@ -64,18 +78,19 @@ public class PlotFragment extends Fragment {
 
         View view = binding.getRoot();
 
-        ArrayList<ChartData> list = new ArrayList<>();
+        list = new ArrayList<>();
 
-        for (int i = 0; i < 2; ++i) {
-            list.add(generateData(i + 1));
+        for (int i = 0; i < n_sensors; ++i) {
+            list.add(generateLineData());
+            //list.add(new LineData());
         }
 
-        list.add(generateLineData(5));
+        //list.add(generateData(5));
 
         ListDelegateAdapter adapter = new ListDelegateAdapter(list);
 
-        adapter.registerDelegate(new DelegateBarChart());
         adapter.registerDelegate(new DelegateLineChart());
+        adapter.registerDelegate(new DelegateBarChart());
 
         binding.recyclerView.setAdapter(adapter);
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -89,6 +104,12 @@ public class PlotFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.toolbar_connect:
                 connectServer();
+                return true;
+            case R.id.toolbar_start_preview:
+                ws.send("startPreview");
+                return true;
+            case R.id.toolbar_stop_preview:
+                ws.send("stopPreview");
                 return true;
             //TODO Poner los demas items
             default:
@@ -120,6 +141,7 @@ public class PlotFragment extends Fragment {
         mListener = null;
     }
 
+
     public void connectServer() {
         String uri = "http://" + ws_ip + ":" + ws_port;
         AsyncHttpClient.getDefaultInstance().websocket(uri, "client", (ex, webSocket) -> {
@@ -128,22 +150,23 @@ public class PlotFragment extends Fragment {
                 ex.printStackTrace();
                 return;
             }
+            ws = webSocket;
+            //Toast.makeText(getActivity().getApplicationContext(), "Connected to server", Toast.LENGTH_SHORT).show();
             webSocket.setStringCallback(s -> {
-                try {
-                    JSONObject jObject = new JSONObject(s);
-                    JSONArray jLectures = jObject.getJSONArray("lectures");
-                    for (int i = 0; i < jLectures.length(); i++) {
-                        System.out.println(jLectures.get(i));
-                        //TODO Graficar las lectuas en los plots
-                    }
-                } catch (JSONException e) {
-                    //TODO
+                try{
+                    int n = Integer.parseInt(s);
+                    System.out.println(n);
+                    ChartData d = list.get(0);
+                    d.addEntry(new Entry(d.getEntryCount(),n),0);
+                    d.notifyDataChanged();
+                }catch (NumberFormatException nfe){
+                    System.out.println("Could not parse " + nfe);
                 }
             });
         });
     }
 
-    private LineData generateLineData(int cnt) {
+    private LineData generateLineData() {
         LineData lineData = new LineData();
 
         ArrayList<Entry> yVals1 = new ArrayList<Entry>();
@@ -168,7 +191,7 @@ public class PlotFragment extends Fragment {
 
         LineDataSet set1, set2;
 
-        set1 = new LineDataSet(yVals1, "DataSet 1");
+        set1 = new LineDataSet(yVals1, "Acc X");
 
         set1.setAxisDependency(YAxis.AxisDependency.LEFT);
         set1.setColor(ColorTemplate.getHoloBlue());
@@ -199,7 +222,7 @@ public class PlotFragment extends Fragment {
 
         ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
         dataSets.add(set1); // add the datasets
-        dataSets.add(set2);
+        //dataSets.add(set2);
 
         return new LineData(dataSets);
     }

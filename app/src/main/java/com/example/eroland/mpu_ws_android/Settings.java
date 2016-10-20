@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.eroland.mpu_ws_android.databinding.FragmentSettingsBinding;
 
@@ -99,6 +100,11 @@ public class Settings extends Fragment {
                     editor.putInt(getString(R.string.wsPort), port);
                     editor.putInt(getString(R.string.nSensors), sensors);
                     editor.commit();
+                    Context context = getContext();
+                    CharSequence text = "Settings saved";
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
                 });
         return view;
     }
